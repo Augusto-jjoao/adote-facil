@@ -11,9 +11,9 @@ import logo from '../../assets/logo-with-name.png'
 // BUG se o menu mobile estiver aberto, o conteúdo da página não é renderizado, portanto se a largura da tela aumentar e o menu mobile sumir, o conteúdo da página não aparece
 export function DefaultLoggedPageLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   const [mobileMenuIsOpen, setMobileMenuIsOpen] = useState(false)
 
   const userData = getUserData()
@@ -49,7 +49,7 @@ export function DefaultLoggedPageLayout({
         </S.UserInfo>
         <UserMenu />
       </S.AsideMenu>
-      {!mobileMenuIsOpen ? <S.PageContent>{children}</S.PageContent> : null}
+      {!mobileMenuIsOpen && <S.PageContent>{children}</S.PageContent>}
     </S.Wrapper>
   )
 }
