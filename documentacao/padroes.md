@@ -59,7 +59,7 @@ class CreateUserController {
   
 }
 
----
+----
 
 ## 2. Padrões de Projeto
 
