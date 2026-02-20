@@ -20,7 +20,7 @@ jobs:
       - name: Instalar dependências do backend
         run: |
           cd backend              # Acessa a pasta do backend
-          npm install             # Instala as dependências do Node.js
+          npm ci                  # Instala as dependências de forma determinística (recomendado em CI)
 
       - name: Executar testes unitários com Jest
         run: |
@@ -74,9 +74,8 @@ jobs:
           echo "POSTGRES_CONTAINER_PORT=${{ env.POSTGRES_CONTAINER_PORT }}" >> .env
 
       - name: Subir containers com Docker Compose
-        working-directory: ./backend
         run: |
-          docker compose up -d     # Sobe os containers em segundo plano
+          docker compose up -d     # Sobe os containers em segundo plano (executado na raiz, onde está o docker-compose.yml)
           sleep 10                 # Aguarda alguns segundos para garantir que os serviços subam
           docker compose down      # Encerra os containers após o teste
 
@@ -90,7 +89,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Gerar arquivo ZIP do projeto completo
-        run: zip -r adote-facil-projeto.zip . -x '*.git*' '*.github*' 'node_modules/*'
+        run: zip -r adote-facil-projeto.zip . -x '.git' '.github' 'node_modules/*'
         # Compacta todos os arquivos do repositório, exceto pastas desnecessárias como .git, .github e node_modules
 
       - name: Upload do artefato
