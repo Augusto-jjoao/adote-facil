@@ -53,12 +53,48 @@ describe('UpdateUserService', () => {
     )
   })
 
-  test('should call findById with correct id', async () => {
+  test('returns failure with "nenhum dado foi informado" when data has only empty or undefined fields', async () => {
+    const result = await sut.execute({
+      id: defaultParams.id,
+      data: { name: '', email: '', password: '' },
+    })
+    expect(result).toEqual(
+        Failure.create({ message: 'Nenhum dado foi informado' }),
+    )
+  })
+
+  test('returns success and calls repository update with only name when data has name (partial update)', async () => {
+    const result = await sut.execute({
+      id: defaultParams.id,
+      data: { name: 'New Name' },
+    })
+    expect(encrypter.encrypt).not.toHaveBeenCalled()
+    expect(userRepository.update).toHaveBeenCalledWith({
+      id: defaultParams.id,
+      data: { name: 'New Name', password: undefined },
+    })
+    expect(result).toEqual(Success.create(updatedUser))
+  })
+
+  test('returns success and calls repository update with only email when data has email (partial update)', async () => {
+    const result = await sut.execute({
+      id: defaultParams.id,
+      data: { email: 'only-email@mail.com' },
+    })
+    expect(encrypter.encrypt).not.toHaveBeenCalled()
+    expect(userRepository.update).toHaveBeenCalledWith({
+      id: defaultParams.id,
+      data: { email: 'only-email@mail.com', password: undefined },
+    })
+    expect(result).toEqual(Success.create(updatedUser))
+  })
+
+  test('calls repository findById with the given user id', async () => {
     await sut.execute(defaultParams)
     expect(userRepository.findById).toHaveBeenCalledWith(defaultParams.id)
   })
 
-  test('should return failure if user not found', async () => {
+  test('returns failure with invalid credentials message when user is not found', async () => {
     userRepository.findById.mockResolvedValueOnce(null)
     const result = await sut.execute(defaultParams)
     expect(result).toEqual(
@@ -76,7 +112,7 @@ describe('UpdateUserService', () => {
     expect(encrypter.encrypt).not.toHaveBeenCalled()
   })
 
-  test('should update user with correct data', async () => {
+  test('calls repository update with id and data password hashed when sent', async () => {
     await sut.execute(defaultParams)
     expect(userRepository.update).toHaveBeenCalledWith({
       id: defaultParams.id,
@@ -85,10 +121,13 @@ describe('UpdateUserService', () => {
         password: 'encrypted-password',
       },
     })
-  })
 
   test('should return updated user on success', async () => {
     const result = await sut.execute(defaultParams)
     expect(result).toEqual(Success.create(updatedUser))
   })
 })
+})
+
+
+
